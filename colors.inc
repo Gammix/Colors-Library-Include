@@ -7,6 +7,10 @@
  	Author: (creator)
 	* Gammix
 
+	Contributors:
+	* Crayder - GetColorBetweenColors function
+	* Unknown - for colors list
+
 	(c) Copyright 2015
   	* This file is provided as is (no warranties).
 */
@@ -15,10 +19,10 @@ FUNCTIONS:
 native SetPlayerMarkerVisibility(playerid, alpha = 0xFF, forplayerid = -1);
 native TogglePlayerMarker(playerid, bool:toggle, forplayerid = -1);
 native _
-native COLOR_Create(RR, GG, BB, AA = 255);
-native COLOR_SetTransparency(color, alpha = 0xFF);
-native COLOR_HexToInt(str[]);
-native COLOR_IntToHex(cint);
+native ConvertColorTransparency(color, alpha = 0xFF);
+native HexToInt(hexcolor, &r, &g, &b, &a);
+native IntToHex(r, g, b, a = 255);
+native GetColorBetweenColors(ColorA, ColorB, Float:Percent);
 */
 
 static bool:gPlayerMarker[MAX_PLAYERS];
@@ -102,15 +106,7 @@ public OnPlayerSpawn(playerid)
 #endif
 
 //color functions
-stock COLOR_Create(RR, GG, BB, AA = 255)//make a color
-{
-	return 	(RR*16777216) 	+
-			(GG*65536)		+
-			(BB*256)		+
-			AA;
-}
-
-stock COLOR_SetTransparency(color, alpha = 0xFF)
+stock ConvertColorTransparency(color, alpha = 0xFF)
 {
     static newcolor;
 
@@ -120,24 +116,36 @@ stock COLOR_SetTransparency(color, alpha = 0xFF)
     return newcolor;
 }
 
-stock COLOR_HexToInt(str[])//credits to samp team
+stock HexToInt(hexcolor, &r, &g, &b, &a)
 {
-    if(! str[0]) return false;
-
-    static cur = 1, res = 0;
-    for(new i = strlen(string); i > 0; i--)
-    {
-        res += cur * (string[i - 1] - ((string[i - 1] < 58) ? (48) : (55)));
-        cur = cur * 16;
-    }
-    return res;
+	r = ( hexcolor >>> 24 ) & 0xFF;
+	g = ( hexcolor >>> 16 ) & 0xFF;
+	b = ( hexcolor >>> 8 ) & 0xFF;
+	a = hexcolor & 0xFF;
 }
 
-stock COLOR_IntToHex(cint)//better and simple method !
+
+stock IntToHex(r, g, b, a = 255)//make a color
 {
-	static str[18];
-    format(str, sizeof(str), "{%06x}", cint >>> 8);
-    return str;
+	return 	(r * 16777216) 	+
+			(g * 65536)		+
+			(g * 256)		+
+			a;
+}
+
+stock GetColorBetweenColors(ColorA, ColorB, Float:Percent)
+{
+	new R1, G1, B1, A1, R2, G2, B2, A2;
+
+	HexToInt(ColorA, R1, G1, B1, A1);
+	HexToInt(ColorB, R2, G2, B2, A2);
+
+	return IntToHex(
+		floatround(Percent * (R2-R1)) + R1,
+        	floatround(Percent * (G2-G1)) + G1,
+        	floatround(Percent * (B2-B1)) + B1,
+        	floatround(Percent * (A2-A1)) + A1
+	);
 }
 
 //Embeded colors
