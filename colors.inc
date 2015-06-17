@@ -1,7 +1,3 @@
-#include <a_samp>
-
-#include <a_samp>
-
 /*
 	Colors Include (colors.inc)
 	* Most used and flexible colors and embeded colors list!
@@ -13,7 +9,7 @@
 
 	Contributors:
 	* Crayder - GetColorBetweenColors function
-	* Gammix - for colors list (c)  2015
+	* Unknown - for colors list
 
 	(c) Copyright 2015
   	* This file is provided as is (no warranties).
@@ -102,7 +98,7 @@ native GetColorBetweenColors(ColorA, ColorB, Float:Percent);
 	  	{
 	  	    #if defined DEBUG_CRASH
   				PrintError("TextDrawCreate");
-                return PlayerText:INVALID_TEXT_DRAW;
+                return Text:INVALID_TEXT_DRAW;
        		#else
        			return return Text:INVALID_TEXT_DRAW;
        		#endif
@@ -118,7 +114,7 @@ native GetColorBetweenColors(ColorA, ColorB, Float:Percent);
 
 	stock _TextDrawSetString(Text:textdraw, string[])
  	{
-  		if(! IsSafeText(text))
+  		if(! IsSafeText(string))
 	  	{
 	  	    #if defined DEBUG_CRASH
   				return PrintError("TextDrawSetString");
@@ -157,7 +153,7 @@ native GetColorBetweenColors(ColorA, ColorB, Float:Percent);
 
 	stock _PlayerTextDrawSetString(playerid, PlayerText:textdraw, string[])
  	{
-  		if(! IsSafeText(text))
+  		if(! IsSafeText(string))
 	  	{
 	  	    #if defined DEBUG_CRASH
   				return PrintError("PlayerTextDrawSetString");
