@@ -13,7 +13,7 @@
 
 	Contributors:
 	* Crayder - GetColorBetweenColors function
-	* Unknown - for colors list
+	* Gammix - for colors list (c) 2015
 
 	(c) Copyright 2015
   	* This file is provided as is (no warranties).
