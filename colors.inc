@@ -1,7 +1,6 @@
 /*
 	Colors Include (colors.inc)
 	* Most used and flexible colors and embeded colors list!
-	* Now avaliable color crasher fix(optional though)
 	* 2 handy player functions !
 
  	Author: (creator)
@@ -9,7 +8,6 @@
 
 	Contributors:
 	* Crayder - GetColorBetweenColors function
-	* Unknown - for colors list
 
 	(c) Copyright 2015
   	* This file is provided as is (no warranties).
@@ -18,159 +16,13 @@
 FUNCTIONS:
 native SetPlayerMarkerVisibility(playerid, alpha = 0xFF, forplayerid = -1);
 native TogglePlayerMarker(playerid, bool:toggle, forplayerid = -1);
+native IsPlayerMarkerToggled(playerid);
 native _
 native ConvertColorTransparency(color, alpha = 0xFF);
 native HexToInt(hexcolor, &r, &g, &b, &a);
 native IntToHex(r, g, b, a = 255);
 native GetColorBetweenColors(ColorA, ColorB, Float:Percent);
 */
-
-#define FIX_COLOR_CRASH //comment this if you don't want gametext and textdraws crash fixed!
-#define DEBUG_CRASH //comment this if you don't want console warnings when an unsafe text is entered in a gametext of textdraw
-
-#if defined FIX_COLOR_CRASH
-
-	stock static IsSafeText(string[])
-	{
-	    new count;
-	    for(new num, len = strlen(string); num < len; num++)
-	    {
-	        if(string[num] == '~')
-			{
-			    if((num + 1) < len)
-				{
-					if(string[(num + 1)] == '~') return false;
-				}
-				count += 1;
-			}
-	    }
-	    if((count % 2) > 0) return false;
-	    return true;
-	}
-
-	#if defined DEBUG_CRASH
-    	#define PrintError(%0) printf("[colors.inc] DEBUG: An un safe string was passed in '%s'; But the system prevented the crash!", %0)
- 	#endif
-
-	//now gametext hooking
-    stock _GameTextForPlayer(playerid, text[], expiretime, style)
- 	{
-  		if(! IsSafeText(text))
-	  	{
-	  	    #if defined DEBUG_CRASH
-  				return PrintError("GameTextForPlayer");
-       		#else
-       			return false;
-       		#endif
-       	}
-        return GameTextForPlayer(playerid, text, expiretime, style);
-	}
-    #if defined _ALS_GameTextForPlayer
-    	#undef GameTextForPlayer
-   	#else
-        #define _ALS_GameTextForPlayer
-   	#endif
-
-	#define GameTextForPlayer _GameTextForPlayer
-
-	stock _GameTextForAll(text[], expiretime, style)
-    {
-  		if(! IsSafeText(text))
-	  	{
-	  	    #if defined DEBUG_CRASH
-  				return PrintError("GameTextForAll");
-       		#else
-       			return false;
-       		#endif
-       	}
-        return GameTextForAll(text, expiretime, style);
-	}
- 	#if defined _ALS_GameTextForAll
-  		#undef GameTextForAll
-    #else
-    	#define _ALS_GameTextForAll
-    #endif
-    #define GameTextForAll _GameTextForAll
-
-	stock Text:_TextDrawCreate(Float:x, Float:y, text[])
- 	{
-  		if(! IsSafeText(text))
-	  	{
-	  	    #if defined DEBUG_CRASH
-  				PrintError("TextDrawCreate");
-                return Text:INVALID_TEXT_DRAW;
-       		#else
-       			return return Text:INVALID_TEXT_DRAW;
-       		#endif
-       	}
-        return TextDrawCreate(x, y, text);
-	}
- 	#if defined _ALS_TextDrawCreate
-	    #undef TextDrawCreate
-    #else
-        #define _ALS_TextDrawCreate
-    #endif
-    #define TextDrawCreate _TextDrawCreate
-
-	stock _TextDrawSetString(Text:textdraw, string[])
- 	{
-  		if(! IsSafeText(string))
-	  	{
-	  	    #if defined DEBUG_CRASH
-  				return PrintError("TextDrawSetString");
-       		#else
-       			return false;
-       		#endif
-       	}
-        return TextDrawSetString(textdraw, string);
-	}
- 	#if defined _ALS_TextDrawSetString
-  		#undef TextDrawSetString
-    #else
-    	#define _ALS_TextDrawSetString
-    #endif
-    #define TextDrawSetString _TextDrawSetString
-
-	stock PlayerText:_CreatePlayerTextDraw(playerid, Float:x, Float:y, text[])
- 	{
-  		if(! IsSafeText(text))
-	  	{
-	  	    #if defined DEBUG_CRASH
-  				PrintError("CreatePlayerTextDraw");
-                return PlayerText:INVALID_TEXT_DRAW;
-       		#else
-       			return return PlayerText:INVALID_TEXT_DRAW;
-       		#endif
-       	}
-		return CreatePlayerTextDraw(playerid, x, y, text);
-  	}
-   	#if defined _ALS_CreatePlayerTextDraw
-    	#undef CreatePlayerTextDraw
-    #else
-    	#define _ALS_CreatePlayerTextDraw
-    #endif
-    #define CreatePlayerTextDraw _CreatePlayerTextDraw
-
-	stock _PlayerTextDrawSetString(playerid, PlayerText:textdraw, string[])
- 	{
-  		if(! IsSafeText(string))
-	  	{
-	  	    #if defined DEBUG_CRASH
-  				return PrintError("PlayerTextDrawSetString");
-       		#else
-       			return false;
-       		#endif
-       	}
-        return PlayerTextDrawSetString(playerid, textdraw, string);
-	}
- 	#if defined _ALS_PlayerTextDrawSetString
-  		#undef PlayerTextDrawSetString
-    #else
-    	#define _ALS_PlayerTextDrawSetString
-    #endif
-    #define PlayerTextDrawSetString _PlayerTextDrawSetString
-
-#endif
 
 //player functions
 static bool:gPlayerMarker[MAX_PLAYERS];
@@ -268,7 +120,7 @@ stock HexToInt(hexcolor, &r, &g, &b, &a)
 }
 
 
-stock IntToHex(r, g, b, a = 255)//make a color
+stock IntToHex(r, g, b, a = 255)
 {
 	return 	(r * 16777216) 	+
 			(g * 65536)		+
@@ -293,6 +145,31 @@ stock GetColorBetweenColors(ColorA, ColorB, Float:Percent)
 #define COLOR_BLACK         	0x000000FF
 #define COLOR_WHITE				0xFFFFFFFF
 
+#define COLOR_FIREBRICK	 		0xB22222FF
+#define COLOR_SALMON 			0xFA8072FF
+#define COLOR_CRIMSON 			0xDC143CFF
+
+#define COLOR_DEEP_PINK 		0xFF1493FF
+
+#define COLOR_TOMATO 			0xFF6347FF
+#define COLOR_ORANGE_RED 		0xFF4500FF
+
+#define COLOR_GOLD 				0xFFD700FF
+#define COLOR_LEMON 			0xFFFACDFF
+#define COLOR_GOLDENROD 		0xFAFAD2FF
+#define COLOR_MOCCASIN 			0xFFE4B5FF
+#define COLOR_PEACH 			0xFFDAB9FF
+#define COLOR_DARK_KHAKI 		0xBDB76BFF
+
+#define COLOR_LAVENDER 			0xE6E6FAFF
+#define COLOR_THISTLE 			0xD8BFD8FF
+#define COLOR_PLUM 				0xDDA0DDFF
+#define COLOR_VIOLET 			0xEE82EEFF
+#define COLOR_ORCHID 			0xDA70D6FF
+#define COLOR_FUCHSIA 			0xFF00FFFF
+#define COLOR_INDIGO 			0x4B0082FF
+#define COLOR_SLATE_BLUE 		0x6A5ACDFF
+
 #define COLOR_GREY_1       		0x191919FF
 #define COLOR_GREY_2			0x333333FF
 #define COLOR_GREY_3			0x4D4D4DFF
@@ -303,6 +180,35 @@ stock GetColorBetweenColors(ColorA, ColorB, Float:Percent)
 #define COLOR_GREY_8			0xCCCCCCFF
 #define COLOR_GREY_9			0xE6E6E6FF
 #define COLOR_GREY				0x808080FF
+
+#define COLOR_CHARTREUSE 		0x7FFF00FF
+#define COLOR_SPRING_GREEN 		0x00FF7FFF
+#define COLOR_SEA_GREEN 		0x2E8B57FF
+#define COLOR_FOREST_GREEN 		0x228B22FF
+#define COLOR_YELLOW_GREEN 		0x9ACD32FF
+#define COLOR_MARINE			0x66CDAAFF
+#define COLOR_DARK_CYAN	 		0x008B8BFF
+#define COLOR_TEAL 				0x008080FF
+
+#define COLOR_TURQUOISE 		0x40E0D0FF
+#define COLOR_CADET_BLUE	 	0x5F9EA0FF
+#define COLOR_STEEL_BLUE 		0x4682B4FF
+#define COLOR_DODGER_BLUE 		0x1E90FFFF
+#define COLOR_ROYAL_BLUE 		0x4169E1FF
+#define COLOR_NAVY 				0x000080FF
+#define COLOR_MIDNIGHT_BLUE 	0x191970FF
+
+#define COLOR_CORN_SILK 		0xFFF8DCFF
+#define COLOR_BISQUE 			0xFFE4C4FF
+#define COLOR_WHEAT 			0xF5DEB3FF
+#define COLOR_TAN 				0xD2B48CFF
+#define COLOR_ROSY_BROWN 		0xBC8F8FFF
+#define COLOR_SANDY_BROWN 		0xF4A460FF
+#define COLOR_PERU 				0xCD853FFF
+#define COLOR_SADDLE_BROWN 		0x8B4513FF
+#define COLOR_SIENNA 			0xA0522DFF
+
+#define COLOR_SILVER 			0xC0C0C0FF
 
 #define COLOR_NAVY_BLUE_1		0x00050AFF
 #define COLOR_NAVY_BLUE_2		0x000A14FF
@@ -1020,6 +926,71 @@ stock GetColorBetweenColors(ColorA, ColorB, Float:Percent)
 //Embeded colors
 #define BLACK         			"{000000}"
 #define WHITE					"{FFFFFF}"
+
+#define FIREBRICK	 			"{B22222}"
+#define SALMON 					"{FA8072}"
+#define CRIMSON 				"{DC143C}"
+
+#define DEEP_PINK 				"{FF1493}"
+
+#define TOMATO 					"{FF6347}"
+#define ORANGE_RED 				"{FF4500}"
+
+#define GOLD 					"{FFD700}"
+#define LEMON 					"{FFFACD}"
+#define GOLDENROD 				"{FAFAD2}"
+#define MOCCASIN 				"{FFE4B5}"
+#define PEACH 					"{FFDAB9}"
+#define DARK_KHAKI 				"{BDB76B}"
+
+#define LAVENDER 				"{E6E6FA}"
+#define THISTLE 				"{D8BFD8}"
+#define PLUM 					"{DDA0DD}"
+#define VIOLET 					"{EE82EE}"
+#define ORCHID 					"{DA70D6}"
+#define FUCHSIA 				"{FF00FF}"
+#define INDIGO 					"{4B0082}"
+#define SLATE_BLUE 				"{6A5ACD}"
+
+#define GREY_1       			"{191919}"
+#define GREY_2					"{333333}"
+#define GREY_3					"{4D4D4D}"
+#define GREY_4					"{666666}"
+#define GREY_5					"{808080}"
+#define GREY_6					"{999999}"
+#define GREY_7					"{B2B2B2}"
+#define GREY_8					"{CCCCCC}"
+#define GREY_9					"{E6E6E6}"
+#define GREY					"{808080}"
+
+#define CHARTREUSE 				"{7FFF00}"
+#define SPRING_GREEN 			"{00FF7F}"
+#define SEA_GREEN 				"{2E8B57}"
+#define FOREST_GREEN 			"{228B22}"
+#define YELLOW_GREEN 			"{9ACD32}"
+#define MARINE					"{66CDAA}"
+#define DARK_CYAN	 			"{008B8B}"
+#define TEAL 					"{008080}"
+
+#define TURQUOISE 				"{40E0D0}"
+#define CADET_BLUE	 			"{5F9EA0}"
+#define STEEL_BLUE 				"{4682B4}"
+#define DODGER_BLUE 			"{1E90FF}"
+#define ROYAL_BLUE 				"{4169E1}"
+#define NAVY 					"{000080}"
+#define MIDNIGHT_BLUE 			"{191970}"
+
+#define CORN_SILK 				"{FFF8DC}"
+#define BISQUE 					"{FFE4C4}"
+#define WHEAT 					"{F5DEB3}"
+#define TAN 					"{D2B48C}"
+#define ROSY_BROWN 				"{BC8F8F}"
+#define SANDY_BROWN 			"{F4A460}"
+#define PERU 					"{CD853F}"
+#define SADDLE_BROWN 			"{8B4513}"
+#define SIENNA 					"{A0522D}"
+
+#define SILVER 					"{C0C0C0}"
 
 #define GREY_1       			"{191919}"
 #define GREY_2					"{333333}"
